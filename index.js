@@ -52,7 +52,6 @@ app.post('/api/users/', async function (req, res) {
           _id: foundUser._id
         })
     } else {
-    console.log("user not found");
     userToAdd = new User({
           username: username
           
