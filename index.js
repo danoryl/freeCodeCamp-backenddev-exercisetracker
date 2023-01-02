@@ -81,10 +81,9 @@ app.post('/api/users/:_id/exercises', async function (req, res) {
   let description = req.body.description;
   let duration = req.body.duration;
   let date = req.body.date;
-  if (date == "") {
+  if (date == "" || date == undefined) {
     date = new Date().toISOString().substring(0,10);
    }
-  
   try {
     let foundUser = await User.findById(id)
     if (foundUser) {
@@ -131,7 +130,16 @@ app.get('/api/users/:_id/logs', async function (req, res) {
     req.query.from == undefined ? dateFrom = dateFrom : dateFrom = new Date(req.query.from);
     req.query.to == undefined ? dateTo = dateTo : dateTo = new Date(req.query.to);
     let i = 0;
-    for (exc of log) {
+    if (Object.keys(log).length === 0) {
+      res.json({
+      _id: id,
+      username: username,
+      count: 0,
+      log: []
+      })
+    }
+    else {
+      for (exc of log) {
       let date = new Date(exc.date);
       if (date >= dateFrom && date <= dateTo) {
         logFiltered.push({description: exc.description, duration: exc.duration, date: date.toDateString() })
@@ -139,14 +147,15 @@ app.get('/api/users/:_id/logs', async function (req, res) {
       }
       if (i == limit) { break }
     }
+      
     res.json({
+      _id: id,
       username: username,
       count: logFiltered.length,
-      id: id,
       log: logFiltered
       })
           
-    
+    }
     
   } else {
       res.json({
